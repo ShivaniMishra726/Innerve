@@ -1,7 +1,8 @@
 // Main misinformation detection engine
-// Pipeline: language detect → heuristic scan → compute risk → optional AI fallback
+// Pipeline: language detect → heuristic scan → ML model → fuse scores → verdict
 
 import { runHeuristics, detectLanguage2 } from "./heuristics";
+import { runFakeNewsModel, type ModelPrediction } from "./fakeNewsModel";
 
 export type Verdict = "credible" | "suspicious" | "misinfo";
 
@@ -14,7 +15,13 @@ export interface ScanResult {
   language: string;
   confidence: number;     // 0-100 confidence in verdict
   educationTips: string[];
+  modelPrediction: ModelPrediction; // ML model output for UI breakdown
 }
+
+// Fusion weights: heuristic engine carries more weight (pattern-matching is very reliable
+// for Indian misinformation), ML model is supplementary.
+const HEURISTIC_WEIGHT = 0.6;
+const MODEL_WEIGHT = 0.4;
 
 // Education tips mapped to common red flags
 const EDUCATION_TIPS: Record<string, string[]> = {
@@ -86,9 +93,14 @@ const MISINFO_EXAMPLES = [
 
 function computeVerdictAndExplanation(
   riskScore: number,
+  modelScore: number,
   flags: string[],
-  text: string
+  text: string,
+  modelPrediction: ModelPrediction
 ): { verdict: Verdict; explanation: string; type: string; confidence: number } {
+  // Fuse heuristic risk score with ML model score
+  const fusedScore = Math.round(riskScore * HEURISTIC_WEIGHT + modelScore * MODEL_WEIGHT);
+
   // Check against known misinformation examples
   const lowerText = text.toLowerCase();
   let matchedExample: (typeof MISINFO_EXAMPLES)[0] | null = null;
@@ -105,27 +117,30 @@ function computeVerdictAndExplanation(
   let verdict: Verdict;
   let confidence: number;
   let explanation: string;
-  let type = matchedExample?.type || "default";
 
-  if (riskScore >= 60) {
+  // Use modelPrediction category for explanation type
+  const type = modelPrediction.category === "credible"
+    ? (matchedExample?.type || "default")
+    : modelPrediction.category;
+
+  if (fusedScore >= 55) {
     verdict = "misinfo";
-    confidence = Math.min(60 + riskScore * 0.4, 95);
+    confidence = Math.min(55 + fusedScore * 0.4, 95);
     explanation = matchedExample
       ? matchedExample.explanation
-      : `This content shows ${flags.length} red flags including ${flags.slice(0, 2).join(" and ").toLowerCase()}. It has patterns commonly found in misinformation.`;
-  } else if (riskScore >= 30) {
+      : `This content shows ${flags.length} red flags including ${flags.slice(0, 2).join(" and ").toLowerCase()}. It has patterns commonly found in misinformation (category: ${modelPrediction.categoryLabel}).`;
+  } else if (fusedScore >= 28) {
     verdict = "suspicious";
-    confidence = Math.min(50 + riskScore * 0.5, 85);
+    confidence = Math.min(45 + fusedScore * 0.5, 85);
     explanation = matchedExample
       ? `Potentially suspicious: ${matchedExample.explanation}`
       : `This content has some concerning signals: ${flags.slice(0, 2).join(" and ").toLowerCase()}. Verify before sharing.`;
   } else {
     verdict = "credible";
-    confidence = Math.min(70 + (60 - riskScore) * 0.5, 90);
+    confidence = Math.min(65 + (55 - fusedScore) * 0.5, 90);
     explanation = flags.length > 0
       ? `Content appears relatively credible, but note: ${flags[0].toLowerCase()}. Always verify from official sources.`
       : "This content shows no major misinformation signals. Still, always cross-check important claims with trusted sources.";
-    type = "default";
   }
 
   return { verdict, explanation, type, confidence };
@@ -167,27 +182,34 @@ export async function scanContent(text: string): Promise<ScanResult> {
   const heuristicResult = runHeuristics(text);
   const riskScore = heuristicResult.score;
 
-  // Step 3: Compute verdict and explanation
+  // Step 3: Run ML-inspired fake news model
+  const modelPrediction = runFakeNewsModel(text);
+
+  // Step 4: Fuse scores and compute verdict
   const { verdict, explanation, type, confidence } = computeVerdictAndExplanation(
     riskScore,
+    modelPrediction.modelScore,
     heuristicResult.flags,
-    text
+    text,
+    modelPrediction
   );
 
-  // Step 4: Convert risk score to factuality score (inverse)
-  const factualityScore = Math.max(0, 100 - riskScore);
+  // Step 5: Convert fused risk to factuality score (inverse)
+  const fusedRisk = Math.round(riskScore * HEURISTIC_WEIGHT + modelPrediction.modelScore * MODEL_WEIGHT);
+  const factualityScore = Math.max(0, 100 - fusedRisk);
 
-  // Step 5: Get education tips
+  // Step 6: Get education tips
   const educationTips = getEducationTips(type, heuristicResult.flags);
 
   return {
     score: factualityScore,
-    riskScore,
+    riskScore: fusedRisk,
     verdict,
     flags: heuristicResult.flags,
     explanation,
     language,
     confidence,
     educationTips,
+    modelPrediction,
   };
 }

@@ -11,6 +11,8 @@ import {
   Lightbulb,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import ModelBreakdown from "./ModelBreakdown";
+import type { ModelPrediction } from "@/lib/fakeNewsModel";
 
 type Verdict = "credible" | "suspicious" | "misinfo";
 
@@ -23,6 +25,7 @@ interface ScanResult {
   language: string;
   confidence: number;
   educationTips: string[];
+  modelPrediction: ModelPrediction;
 }
 
 interface ResultsPanelProps {
@@ -178,6 +181,11 @@ export default function ResultsPanel({ result, onReset }: ResultsPanelProps) {
         </h3>
         <p className="text-sm text-gray-600 leading-relaxed">{result.explanation}</p>
       </div>
+
+      {/* Model Breakdown */}
+      {result.modelPrediction && (
+        <ModelBreakdown prediction={result.modelPrediction} />
+      )}
 
       {/* Red Flags */}
       {result.flags.length > 0 && (
