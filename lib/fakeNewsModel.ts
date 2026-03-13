@@ -258,7 +258,7 @@ function extractFeatures(text: string): ModelFeatures {
 // This represents the "innocent until proven guilty" prior for unclassified content.
 const BASELINE_CREDIBLE_SCORE = 50;
 
-// When a fake-category signal fires, the credible score is penalised by half the
+// When a fake-category signal fires, the credible score is penalized by half the
 // classifier weight — enough to move credible below fake categories without zeroing it.
 const CREDIBLE_PENALTY_FACTOR = 0.5;
 

@@ -20,7 +20,10 @@ India faces a massive misinformation crisis:
 | Feature | Description |
 |---------|-------------|
 | 🔍 **AI Scanner** | Paste any message/article → instant misinformation analysis |
-| 📊 **Trust Score** | 0-100 factuality score with confidence level |
+| 🤖 **ML Model v2** | 5-feature fake-news classifier with category detection (scam / health / election / hoax / credible) |
+| 📊 **Trust Score** | 0-100 factuality score fused from heuristics (60 %) + ML model (40 %) |
+| 📈 **AI Model Breakdown** | Animated per-feature score bars + detected category badge |
+| 📝 **Demo Input System** | Tabbed fake / credible examples (5 + 3 presets) — no typing required |
 | 🚩 **Red Flags** | Detailed breakdown of suspicious signals |
 | 📚 **Education Panel** | 5-tip carousel on spotting fake news |
 | 🧩 **Spot the Fake Quiz** | 3 India-specific misinformation examples |
@@ -36,7 +39,7 @@ India faces a massive misinformation crisis:
 - **Framer Motion** animations with confetti for credible results
 - **ARIA accessible** with keyboard navigation
 
-## 🤖 AI Architecture (Low-Cost Strategy)
+## 🤖 AI Architecture
 
 ```
 Input Text
@@ -48,18 +51,26 @@ Input Text
    - Scam pattern matching (30 pts)
    - Clickbait phrases (15 pts)
    - Fake authority markers (20 pts)
-   - URL credibility scoring (20 pts)
+   - URL credibility scoring (20 pts)   ← bare-domain aware
    - Formatting analysis (10 pts)
    - Forward chain indicators (10 pts)
     ↓
-3. Known Pattern Matching (PM scams, COVID, elections, banking)
+3. ML-Inspired Fake News Model v2:
+   - 5-feature extraction:
+       emotionality · sensationalism · urgency · authority misuse · credibility
+   - Category classification:
+       scam | health_misinfo | election_misinfo | viral_hoax | credible
+   - Composite model score (features 55% + category 45%)
     ↓
-4. Verdict: credible | suspicious | misinfo
+4. Score Fusion:
+   - Final risk = heuristics × 0.6 + model × 0.4
     ↓
-5. Education tips + shareable badge
+5. Verdict: credible | suspicious | misinfo
+    ↓
+6. AI Model Breakdown UI + Education tips + Shareable badge
 ```
 
-**No external AI API calls** — runs entirely on-device heuristics.
+**No external AI API calls** — runs entirely on-device heuristics + local model.
 Designed to add HuggingFace inference fallback if confidence < 70%.
 
 ## 🛠️ Tech Stack
@@ -90,9 +101,11 @@ truthguard/
 │   ├── ResultsPanel.tsx      # Verdict + flags + tips display
 │   ├── EducationModal.tsx    # 5-tip education carousel
 │   ├── QuizCard.tsx          # "Spot the Fake" interactive quiz
+│   ├── ModelBreakdown.tsx    # AI model feature breakdown (v2)
 │   ├── TruthBadge.tsx        # Canvas-based shareable badge
 │   └── LoadingSpinner.tsx    # AI scanning animation
 ├── lib/
+│   ├── fakeNewsModel.ts      # ML-inspired fake-news classifier (v2)
 │   ├── heuristics.ts         # Local scoring engine
 │   └── misinfoEngine.ts      # Main detection pipeline
 ├── public/
@@ -170,15 +183,17 @@ The app is fully static-compatible except for the `/api/scan` route.
 
 **[0:15-0:45] Live Demo**
 1. Open TruthGuard on mobile
-2. Click "PM Subsidy Scam" sample
+2. In the "🚫 Fake Examples" tab, click "💊 COVID Health Hoax"
 3. Hit "Scan for Truth"
-4. Show verdict (🚫 Likely Misinformation, score: 15/100)
-5. Highlight red flags detected
-6. Show education tips
-7. Generate Truth Badge → Share to WhatsApp
+4. Show verdict (⚠️ Suspicious or 🚫 Misinformation, score ~15-40/100)
+5. Highlight AI Model Breakdown — category badge + 5 feature bars
+6. Highlight red flags detected
+7. Show education tips
+8. Switch to "✅ Credible Examples", scan "📊 RBI Rate Cut" — watch confetti!
+9. Generate Truth Badge → Share to WhatsApp
 
 **[0:45-1:15] Technology**
-> "Zero external API calls. Pure local heuristics — emotional keyword detection, scam pattern matching, URL credibility scoring. Runs entirely in the browser. Stateless, private, instant."
+> "Zero external API calls. Pure local heuristics fused with an ML-inspired 5-feature classifier — emotional keyword detection, scam pattern matching, URL credibility scoring, category classification. Runs entirely in the browser. Stateless, private, instant."
 
 **[1:15-1:45] Impact**
 > "We target India's 500M+ WhatsApp users. Mobile-first. Supports Hindi and English. Works offline as a PWA. AltNews, BoomLive, PIB Fact Check — all integrated."
@@ -194,8 +209,9 @@ Built for the **Innerve Hackathon**.
 
 To extend TruthGuard:
 1. Add more scam patterns in `lib/heuristics.ts`
-2. Integrate HuggingFace inference in `lib/misinfoEngine.ts`
-3. Add Google Fact Check API in `app/api/scan/route.ts`
+2. Tune feature weights or add new categories in `lib/fakeNewsModel.ts`
+3. Integrate HuggingFace inference in `lib/misinfoEngine.ts`
+4. Add Google Fact Check API in `app/api/scan/route.ts`
 
 ## 📄 License
 

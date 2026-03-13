@@ -20,7 +20,7 @@ const DEMO_SAMPLES: Record<DemoCategory, { label: string; emoji: string; text: s
       text: "BREAKING: Doctors don't want you to know this! Drink kadha with tulsi, ginger and turmeric 3 times a day to cure COVID-19 in 24 hours! 100% guaranteed! A doctor friend told me this secret cure. WhatsApp message says this works! Share with all your family members before they delete this!",
     },
     {
-      label: "Election Rumour",
+      label: "Election Rumor",
       emoji: "🗳️",
       text: "SHOCKING: EVMs have been manipulated in upcoming elections! Government hiding the truth! A whistleblower has exposed how votes are being rigged. Mainstream media won't show you this. Share before it's banned! Wake up India! The truth about election fraud finally revealed!",
     },
