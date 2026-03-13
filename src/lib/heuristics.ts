@@ -133,6 +133,7 @@ export function runHeuristics(text: string): HeuristicResult {
 
   // 5. URL analysis (0-20 pts)
   const urlMatches = text.match(/https?:\/\/[^\s]+/gi) || [];
+  const textLower = text.toLowerCase();
   let urlScore = 0;
   let hasTrustedSource = false;
   let hasSuspiciousUrl = false;
@@ -148,10 +149,21 @@ export function runHeuristics(text: string): HeuristicResult {
     }
   }
 
+  // Also check for bare domain mentions (without http://) e.g. "rbi.org.in"
+  if (!hasTrustedSource) {
+    hasTrustedSource = TRUSTED_DOMAINS.some((d) => textLower.includes(d));
+  }
+
+  // Check for suspicious patterns (bit.ly, tinyurl) in bare text too
+  if (!hasSuspiciousUrl) {
+    hasSuspiciousUrl = SUSPICIOUS_URL_PATTERNS.some((p) => p.test(text));
+    if (hasSuspiciousUrl) urlScore += 10;
+  }
+
   if (hasTrustedSource) {
     urlScore = Math.max(urlScore - 15, 0);
     flags.push("Contains trusted source reference");
-  } else if (urlMatches.length === 0) {
+  } else if (urlMatches.length === 0 && !hasSuspiciousUrl) {
     urlScore += 5;
     flags.push("No verifiable source provided");
   }

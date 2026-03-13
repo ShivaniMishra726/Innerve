@@ -17,6 +17,8 @@ import EducationModal from "@/components/EducationModal";
 import QuizCard from "@/components/QuizCard";
 import TruthBadge from "@/components/TruthBadge";
 
+import type { ModelPrediction } from "@/lib/fakeNewsModel";
+
 interface ScanResult {
   score: number;
   riskScore: number;
@@ -26,6 +28,7 @@ interface ScanResult {
   language: string;
   confidence: number;
   educationTips: string[];
+  modelPrediction: ModelPrediction;
 }
 
 export default function HomePage() {
