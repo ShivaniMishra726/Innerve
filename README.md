@@ -86,7 +86,7 @@ Designed to add HuggingFace inference fallback if confidence < 70%.
 ## 📁 Project Structure
 
 ```
-truthguard/
+src/
 ├── app/
 │   ├── page.tsx              # Home page with all sections
 │   ├── layout.tsx            # Root layout with PWA metadata
@@ -95,23 +95,25 @@ truthguard/
 │       └── scan/
 │           └── route.ts      # POST /api/scan endpoint
 ├── components/
+│   ├── index.ts              # Barrel export for all components
 │   ├── Header.tsx            # Sticky navigation header
 │   ├── Footer.tsx            # Footer with resources
-│   ├── Scanner.tsx           # Text input + scan trigger
+│   ├── Scanner.tsx           # Text input + scan trigger (tabbed demo)
 │   ├── ResultsPanel.tsx      # Verdict + flags + tips display
+│   ├── ModelBreakdown.tsx    # AI model feature breakdown (v2)
 │   ├── EducationModal.tsx    # 5-tip education carousel
 │   ├── QuizCard.tsx          # "Spot the Fake" interactive quiz
-│   ├── ModelBreakdown.tsx    # AI model feature breakdown (v2)
 │   ├── TruthBadge.tsx        # Canvas-based shareable badge
 │   └── LoadingSpinner.tsx    # AI scanning animation
-├── lib/
-│   ├── fakeNewsModel.ts      # ML-inspired fake-news classifier (v2)
-│   ├── heuristics.ts         # Local scoring engine
-│   └── misinfoEngine.ts      # Main detection pipeline
-├── public/
+└── lib/
+    ├── index.ts              # Barrel export for all lib modules
+    ├── fakeNewsModel.ts      # ML-inspired fake-news classifier (v2)
+    ├── heuristics.ts         # Local scoring engine
+    └── misinfoEngine.ts      # Main detection pipeline (fused score)
+public/
 │   └── manifest.json         # PWA manifest
-├── tailwind.config.ts
-├── next.config.mjs
+tailwind.config.ts
+next.config.mjs
 └── package.json
 ```
 
