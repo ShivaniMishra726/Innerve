@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scanContent } from "@/lib/misinfoEngine";
+import { scrubPII } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +28,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await scanContent(text);
+    // Scrub PII before sending to AI engine (DPDP Act compliance)
+    const sanitizedText = scrubPII(text);
+
+    // Audit log: record whether scrubbing occurred, without logging actual PII
+    if (sanitizedText !== text) {
+      const redactedCount = (sanitizedText.match(/\[REDACTED\]/g) ?? []).length;
+      console.info(`[PII scrubber] Redacted ${redactedCount} item(s) before inference.`);
+    }
+
+    const result = await scanContent(sanitizedText);
 
     return NextResponse.json(result);
   } catch (error) {
