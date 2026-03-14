@@ -226,7 +226,7 @@ export default function Scanner({ onScanComplete }: ScannerProps) {
       </motion.button>
 
       <p className="mt-3 text-center text-xs text-gray-400">
-        🔒 Your content is never stored. Analysis happens locally.
+        🔒 Your content is never stored. PII is scrubbed before analysis.
       </p>
     </motion.div>
   );
