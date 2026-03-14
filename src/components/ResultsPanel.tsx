@@ -9,10 +9,13 @@ import {
   AlertCircle,
   RefreshCw,
   Lightbulb,
+  Cloud,
+  ExternalLink,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import ModelBreakdown from "./ModelBreakdown";
 import type { ModelPrediction } from "@/lib/fakeNewsModel";
+import type { CloudAnalysisResult } from "@/lib/cloudAnalysis";
 
 type Verdict = "credible" | "suspicious" | "misinfo";
 
@@ -26,6 +29,7 @@ interface ScanResult {
   confidence: number;
   educationTips: string[];
   modelPrediction: ModelPrediction;
+  cloudAnalysis?: CloudAnalysisResult;
 }
 
 interface ResultsPanelProps {
@@ -134,7 +138,7 @@ export default function ResultsPanel({ result, onReset }: ResultsPanelProps) {
         </div>
 
         {/* Confidence & Language */}
-        <div className="flex gap-4 mt-4">
+        <div className="flex flex-wrap gap-4 mt-4">
           <div className="flex items-center gap-1.5 text-sm text-gray-600">
             <AlertCircle className="w-4 h-4 text-gray-400" />
             <span>Confidence: <strong>{Math.round(result.confidence)}%</strong></span>
@@ -148,6 +152,12 @@ export default function ResultsPanel({ result, onReset }: ResultsPanelProps) {
               </strong>
             </span>
           </div>
+          {result.cloudAnalysis?.used && (
+            <div className="flex items-center gap-1.5 text-sm text-indigo-600">
+              <Cloud className="w-4 h-4 text-indigo-400" />
+              <span className="font-semibold">Cloud-Enhanced</span>
+            </div>
+          )}
         </div>
 
         {/* Score bar */}
@@ -234,6 +244,47 @@ export default function ResultsPanel({ result, onReset }: ResultsPanelProps) {
           </ul>
         </div>
       )}
+
+      {/* Cloud Fact Checks */}
+      {result.cloudAnalysis?.used &&
+        result.cloudAnalysis.factChecks.length > 0 && (
+          <div className="clay-card p-5 bg-indigo-50 border-2 border-indigo-100">
+            <h3 className="font-bold text-indigo-800 mb-3 flex items-center gap-2">
+              <Cloud className="w-4 h-4 text-indigo-600" />
+              Verified Fact Checks
+            </h3>
+            <ul className="space-y-3">
+              {result.cloudAnalysis.factChecks.map((fc, i) => (
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1 }}
+                  className="text-sm text-indigo-900 bg-white rounded-xl p-3 border border-indigo-100"
+                >
+                  <p className="font-medium leading-snug mb-1">{fc.claimText}</p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-indigo-600">
+                    <span className="font-semibold bg-indigo-100 rounded-full px-2 py-0.5">
+                      {fc.rating}
+                    </span>
+                    {fc.publisher && <span>— {fc.publisher}</span>}
+                    {fc.url && (
+                      <a
+                        href={fc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-0.5 underline hover:text-indigo-800"
+                      >
+                        Read more
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+        )}
 
       {/* Reset button */}
       <motion.button

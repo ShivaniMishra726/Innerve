@@ -3,6 +3,7 @@
 
 import { runHeuristics, detectLanguage2 } from "./heuristics";
 import { runFakeNewsModel, type ModelPrediction } from "./fakeNewsModel";
+import type { CloudAnalysisResult } from "./cloudAnalysis";
 
 export type Verdict = "credible" | "suspicious" | "misinfo";
 
@@ -16,6 +17,8 @@ export interface ScanResult {
   confidence: number;     // 0-100 confidence in verdict
   educationTips: string[];
   modelPrediction: ModelPrediction; // ML model output for UI breakdown
+  /** Cloud analysis results, present when local confidence < 70 and API keys are configured. */
+  cloudAnalysis?: CloudAnalysisResult;
 }
 
 // Fusion weights: heuristic engine carries more weight (pattern-matching is very reliable

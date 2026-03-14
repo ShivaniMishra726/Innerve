@@ -12,6 +12,9 @@ export type {
   ContentCategory,
 } from "./fakeNewsModel";
 
+export { runCloudAnalysis } from "./cloudAnalysis";
+export type { CloudAnalysisResult, FactCheck } from "./cloudAnalysis";
+
 export {
   DUMMY_SCAN_EXAMPLES,
   FAKE_EXAMPLES,
