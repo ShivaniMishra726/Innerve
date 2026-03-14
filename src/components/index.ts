@@ -5,6 +5,7 @@ export { default as Scanner } from "./Scanner";
 export { default as ResultsPanel } from "./ResultsPanel";
 export { default as ModelBreakdown } from "./ModelBreakdown";
 export { default as EducationModal } from "./EducationModal";
+export { default as EducationPanel } from "./EducationPanel";
 export { default as QuizCard } from "./QuizCard";
 export { default as TruthBadge } from "./TruthBadge";
 export { default as LoadingSpinner } from "./LoadingSpinner";

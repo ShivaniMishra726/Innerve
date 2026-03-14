@@ -11,3 +11,25 @@ export type {
   ModelFeatures,
   ContentCategory,
 } from "./fakeNewsModel";
+
+export {
+  DUMMY_SCAN_EXAMPLES,
+  FAKE_EXAMPLES,
+  CREDIBLE_EXAMPLES,
+  EDUCATION_TIPS,
+  QUIZ_QUESTIONS,
+} from "./dummyData";
+export type { DummyScanExample, EducationTip, QuizQuestion } from "./dummyData";
+
+export {
+  scrubPII,
+  scoreToVerdict,
+  verdictToColor,
+  verdictToBg,
+  buildWhatsAppShareUrl,
+  wordCount,
+  truncate,
+  clamp,
+  formatScore,
+  REDACTED_TOKEN,
+} from "./utils";
