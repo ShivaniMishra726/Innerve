@@ -7,6 +7,12 @@ import {
   ArrowDown,
   Search,
   ExternalLink,
+  Target,
+  Cloud,
+  Lock,
+  Server,
+  KeyRound,
+  DatabaseZap,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -100,6 +106,77 @@ export default function HomePage() {
             <ArrowDown className="w-4 h-4 animate-bounce" />
             Scroll to scan
           </a>
+        </motion.section>
+
+        {/* Focused Areas Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-4"
+        >
+          <div className="clay-card p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center shadow-md">
+                <Target className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-lg text-gray-900">Focused Areas</h2>
+                <p className="text-sm text-gray-500">Core domains TruthGuard is built to address</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                {
+                  Icon: Cloud,
+                  title: "Cloud-based Systems",
+                  desc: "Detecting misinformation and fraud targeting cloud services, SaaS platforms, and digital infrastructure.",
+                  color: "from-sky-400 to-cyan-500",
+                },
+                {
+                  Icon: Lock,
+                  title: "Secure User Platforms",
+                  desc: "Protecting users on social media, messaging apps, and digital platforms from harmful misinformation.",
+                  color: "from-emerald-400 to-green-500",
+                },
+                {
+                  Icon: Server,
+                  title: "Scalable Backend Architecture",
+                  desc: "Built on a fast, privacy-first, serverless architecture that scales to serve 1B+ Indian users.",
+                  color: "from-violet-400 to-purple-500",
+                },
+                {
+                  Icon: KeyRound,
+                  title: "Identity & Access Management",
+                  desc: "Spotting impersonation scams, fake authority claims, and identity fraud in viral messages.",
+                  color: "from-orange-400 to-amber-500",
+                },
+                {
+                  Icon: DatabaseZap,
+                  title: "Data Protection Frameworks",
+                  desc: "Zero data retention — all analysis runs locally. PII is scrubbed before any processing.",
+                  color: "from-rose-400 to-pink-500",
+                },
+              ].map(({ Icon, title, desc, color }) => (
+                <div
+                  key={title}
+                  className="flex gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-all group"
+                >
+                  <div className={`w-10 h-10 shrink-0 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-sm`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm text-gray-800 group-hover:text-orange-600 mb-1">
+                      {title}
+                    </h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </motion.section>
 
         {!scanResult ? (
